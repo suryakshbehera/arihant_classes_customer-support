@@ -1,0 +1,19 @@
+{
+  "name": "arihant-classes-customer-support",
+  "version": "1.0.0",
+  "description": "WhatsApp automation middleware using Twilio and Dialogflow ES",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "twilio": "^5.2.0",
+    "@google-cloud/dialogflow": "^6.5.0",
+    "dotenv": "^16.4.5"
+  }
+}
