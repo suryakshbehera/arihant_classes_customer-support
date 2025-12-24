@@ -9,6 +9,20 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+const parameters = result.parameters?.fields || {};
+const phoneRaw = parameters.phone?.stringValue || "";
+const normalizedPhone = phoneRaw.replace(/\D/g, "");
+const isValidPhone = /^[6-9]\d{9}$/.test(normalizedPhone);
+
+let reply = result.fulfillmentText || "Sorry, I didn’t understand that.";
+
+if (result.intent.displayName === "5_Lead_capture_Phone") {
+  if (!isValidPhone) {
+    reply = "❌ Invalid mobile number.\nPlease enter a valid 10 digit Indian mobile number.";
+  }
+}
+
+
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
@@ -16,16 +30,6 @@ const client = twilio(
 
 const sessionClient = new dialogflow.SessionsClient();
 const projectId = process.env.DIALOGFLOW_PROJECT_ID;
-
-/**
- * ✅ Indian phone validation
- * Starts with 6–9, exactly 10 digits
- */
-function isValidIndianPhone(phone) {
-  if (!phone) return false;
-  const clean = phone.replace(/\D/g, "");
-  return /^[6-9]\d{9}$/.test(clean);
-}
 
 
 app.post("/webhook", async (req, res) => {
@@ -75,17 +79,7 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
-/**
-* 🔥 PHONE VALIDATION (OPTION 1)
-* Intercept Dialogflow weakness here
-*/
-if (result.intent.displayName === "Lead_Capture_Phone") {
-  const phoneParam = result.parameters?.phone || "";
 
-  if (!isValidIndianPhone(phoneParam)) {
-   reply ="❗ Please enter a valid 10-digit WhatsApp number.\nExample: 9876543210";
-  }
-}
 
 app.get("/", (req, res) => {
   res.send("WhatsApp Dialogflow middleware running");
