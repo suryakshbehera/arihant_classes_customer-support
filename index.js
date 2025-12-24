@@ -64,6 +64,38 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
+app.post("/dialogflow-webhook", (req, res) => {
+  const intent =
+    req.body.queryResult.intent.displayName;
+
+  if (intent === "Lead_Capture_Phone") {
+    return handlePhoneValidation(req, res);
+  }
+
+  return res.json({ fulfillmentText: "" });
+});
+
+function handlePhoneValidation(req, res) {
+  const phone =
+    req.body.queryResult.parameters.phone || "";
+
+  const cleanPhone = phone.replace(/\D/g, "");
+  const regex = /^[6-9]\d{9}$/;
+
+  if (!regex.test(cleanPhone)) {
+    return res.json({
+      fulfillmentText:
+        "❗ Please enter a valid 10-digit WhatsApp number.\nExample: 9876543210",
+      outputContexts: [{
+        name: req.body.session + "/contexts/awaiting_phone",
+        lifespanCount: 2
+      }]
+    });
+  }
+
+}
+
+
 app.get("/", (req, res) => {
   res.send("WhatsApp Dialogflow middleware running");
 });
