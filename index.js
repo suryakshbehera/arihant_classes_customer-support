@@ -9,20 +9,6 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-const parameters = result.parameters?.fields || {};
-const phoneRaw = parameters.phone?.stringValue || "";
-const normalizedPhone = phoneRaw.replace(/\D/g, "");
-const isValidPhone = /^[6-9]\d{9}$/.test(normalizedPhone);
-
-let reply = result.fulfillmentText || "Sorry, I didn’t understand that.";
-
-if (result.intent.displayName === "5_Lead_capture_Phone") {
-  if (!isValidPhone) {
-    reply = "❌ Invalid mobile number.\nPlease enter a valid 10 digit Indian mobile number.";
-  }
-}
-
-
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
@@ -30,7 +16,6 @@ const client = twilio(
 
 const sessionClient = new dialogflow.SessionsClient();
 const projectId = process.env.DIALOGFLOW_PROJECT_ID;
-
 
 app.post("/webhook", async (req, res) => {
   try {
@@ -78,8 +63,6 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(500);
   }
 });
-
-
 
 app.get("/", (req, res) => {
   res.send("WhatsApp Dialogflow middleware running");
