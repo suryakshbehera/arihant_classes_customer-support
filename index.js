@@ -22,6 +22,10 @@ app.post("/webhook", async (req, res) => {
     const userMessage = req.body.Body;
     const from = req.body.From;
 
+    // new two line for checking the incoming msg
+    console.log("Incoming message:", userMessage);
+    console.log("From", from);
+
     if (!userMessage) {
       return res.sendStatus(200);
     }
